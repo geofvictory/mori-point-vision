@@ -1,0 +1,7 @@
+cat <<EOF > .gitignore
+venv/
+*.pt
+__pycache__/
+.DS_Store
+trail_activity.csv
+EOF
