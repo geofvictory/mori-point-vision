@@ -1,0 +1,17 @@
+# Supported Python: >=3.10
+# Runtime / app dependencies
+opencv-python>=4.8.0          # OpenCV for image/video processing
+ultralytics>=8.0.0            # YOLO and utilities
+torch>=2.0.0                  # PyTorch (pick correct build for CUDA/CPU)
+torchvision>=0.15.0           # Vision utilities for PyTorch
+numpy>=1.25.0                 # Numerical operations
+streamlink>=5.0.0             # Stream handling (for live streams)
+ffmpeg-python>=0.3.0          # FFmpeg bindings for Python
+pyyaml>=6.0                   # Config parsing
+tqdm>=4.65.0                  # Progress bars
+
+# Optional / testing / developer helpers (move to requirements-dev.txt if preferred)
+# pytest>=7.0.0                # Testing framework
+# black>=24.0.0                # Code formatter
+# ruff>=0.18.0                 # Linter / fast checks
+# pre-commit>=3.4.0            # Git hooks
