@@ -1,6 +1,7 @@
 from ultralytics import YOLO
 import torch
-from performance import PerformanceMonitor
+# The dot means "look in the same folder I'm in"
+from .performance import PerformanceMonitor
 
 
 class MoriVision:

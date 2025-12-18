@@ -1,7 +1,7 @@
 import cv2
 import streamlink
-from engine import MoriVision
-from performance import PerformanceMonitor
+from .engine import MoriVision
+from .performance import PerformanceMonitor
 
 def run():
     url = "https://www.youtube.com/live/P79O4t4r6dU"
