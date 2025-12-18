@@ -8,17 +8,31 @@ def run():
     cap = cv2.VideoCapture(streams['720p'].url)
     ai = MoriVision()
 
+    # Frame skipping configuration
+    frame_count = 0
+    process_every_n_frames = 5  # Process every 5th frame; increase to 10 for lower CPU
+    last_annotated_frame = None
+
     while True:
         ret, frame = cap.read()
-        if not ret: break
+        if not ret: 
+            break
 
-        # Process every 5th frame to save CPU (Frame Skipping)
-        results = ai.process_frame(frame)
+        frame_count += 1
         
-        for r in results:
-            cv2.imshow('Mori-Point-Vision', r.plot())
+        # Run inference on designated frames only
+        if frame_count % process_every_n_frames == 0:
+            results = ai.process_frame(frame)
+            
+            for r in results:
+                last_annotated_frame = r.plot()
+        
+        # Display the most recent annotated frame (or raw frame if no inference yet)
+        display_frame = last_annotated_frame if last_annotated_frame is not None else frame
+        cv2.imshow('Mori-Point-Vision', display_frame)
 
-        if cv2.waitKey(1) & 0xFF == ord('q'): break
+        if cv2.waitKey(1) & 0xFF == ord('q'): 
+            break
 
     cap.release()
     cv2.destroyAllWindows()
