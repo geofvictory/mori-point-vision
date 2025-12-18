@@ -8,6 +8,10 @@ This repository contains a small set of utilities and an example app to run obje
 ---
 
 ## 🔧 Features
+- **GPU-accelerated inference**: Auto-detects Apple Silicon (MPS) or CUDA; falls back to CPU
+- **Frame skipping**: Process every Nth frame to reduce CPU load while maintaining smooth playback
+- **Performance monitoring**: Track latency and FPS in real-time with rolling averages
+- **CSV metrics export**: Log inference times and device info to `performance_metrics.csv`
 - Run YOLO detection on camera / file / stream inputs
 - Stream handling via `streamlink` and `ffmpeg` integration
 - Simple logging and engine components under `src/` for easy extension
@@ -41,26 +45,74 @@ Check `src/main.py` and `src/engine.py` to see how the inputs are handled and ho
 
 ---
 
-## 🛠 Configuration
+## 🛠 Configuration & Performance Tuning
 
-- Edit configuration values or pass CLI flags to control model weights, confidence thresholds, and input source.
-- Recommended: store model paths and runtime options in a small YAML or JSON file and load them in `src/main.py` for reproducible runs.
+### GPU Acceleration
+The engine automatically detects and uses:
+- **Apple Silicon (M1/M2/M3)**: Metal Performance Shaders (MPS) for 5–10x faster inference
+- **NVIDIA GPU**: CUDA (if PyTorch is built with CUDA support)
+- **CPU**: Fallback if no GPU detected
 
-Example CLI flags (implemented in `src/main.py`):
+### Frame Skipping
+Reduce CPU usage by processing every Nth frame. Edit `src/main.py`:
 
+```python
+process_every_n_frames = 5    # Process every 5th frame (default)
+# or
+process_every_n_frames = 10   # For 50% lower CPU usage
+```
+
+### Performance Metrics
+Metrics are logged to `performance_metrics.csv` with the following columns:
+- `timestamp`: ISO format datetime
+- `latency_ms`: Inference time in milliseconds
+- `fps`: Estimated frames per second
+- `device`: Hardware used (mps, cuda, cpu)
+
+View live stats:
+```python
+from src.performance import PerformanceMonitor
+stats = perf_monitor.get_stats()
+print(f"Avg Latency: {stats['avg_latency_ms']:.2f}ms")
+print(f"FPS: {stats['fps']:.1f}")
+```
+
+### CLI Configuration
+Edit `src/main.py` to adjust model, confidence, and input source.
+
+Example configuration:
 ```text
 --source    path or stream URL to process
---weights   path/to/weights.pt
+--weights   path/to/weights.pt (e.g., yolo11n.pt, yolo11m.pt)
 --conf      confidence threshold (0.0 - 1.0)
+```
+
+## 📁 Project Structure
+
+```
+src/
+  main.py           → App entry point; stream/file processing
+  engine.py         → MoriVision class; YOLO inference + metrics
+  performance.py    → PerformanceMonitor; latency tracking
+  logger.py         → CSV logging for events and metrics
+requirements.txt    → Runtime dependencies
+README.md           → This file
 ```
 
 ---
 
-## 🧪 Development
+## 🏗 Architecture Highlights
 
-- Add tests under a `tests/` directory and run with `pytest`.
-- Use code formatting and linting tools (e.g., `black`, `ruff`) and add a `requirements-dev.txt` or `pyproject.toml` if needed.
-- Consider `pre-commit` hooks for formatting and checks.
+### Decoupled Telemetry Module
+A standalone `performance.py` module provides **high-resolution performance profiling** (Inference Latency & Throughput) without injecting overhead into the core vision engine. This architecture enables:
+- Clean separation of concerns: inference logic isolated from metrics collection
+- Zero impact on detection speed: performance tracking runs independently
+- Real-time metrics export: CSV logging of latency, FPS, and hardware device
+- Extensibility: Easy to add custom metrics or swap logging backends
+
+---
+
+## 🧪 Development
 
 ---
 
