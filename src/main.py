@@ -1,12 +1,14 @@
 import cv2
 import streamlink
 from engine import MoriVision
+from performance import PerformanceMonitor
 
 def run():
     url = "https://www.youtube.com/live/P79O4t4r6dU"
     streams = streamlink.streams(url)
     cap = cv2.VideoCapture(streams['720p'].url)
     ai = MoriVision()
+    perf = PerformanceMonitor()
 
     # Frame skipping configuration
     frame_count = 0
@@ -22,7 +24,10 @@ def run():
         
         # Run inference on designated frames only
         if frame_count % process_every_n_frames == 0:
-            results = ai.process_frame(frame)
+            perf.start_timer()
+            results, latency = ai.process_frame(frame)
+            latency = perf.stop_timer()
+            print(f"FPS: {perf.get_fps(latency):.1f}")
             
             for r in results:
                 last_annotated_frame = r.plot()
