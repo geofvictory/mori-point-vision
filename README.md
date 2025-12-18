@@ -33,15 +33,23 @@ cd mori-point-vision
 python -m pip install -r requirements.txt
 ```
 
-3. Run the example app (uses `src/main.py`):
+3. Run the example app:
 
 ```bash
-python -m src.main --source 0              # run on default webcam
-python -m src.main --source path/to/video.mp4
-python -m src.main --source "rtsp://..."  # run on RTSP stream
+python src/main.py
 ```
 
-Check `src/main.py` and `src/engine.py` to see how the inputs are handled and how detections are produced and logged.
+Press `q` to quit. The app processes the Mori Point live stream (hardcoded in `main.py`). To use a different stream, edit the `url` variable in `src/main.py`.
+
+### Quick Connectivity Check
+
+Before running the full pipeline, test if your stream connection works:
+
+```bash
+python test_connection.py
+```
+
+This displays raw frames without inference overhead — useful for diagnosing stream issues.
 
 ---
 
@@ -77,15 +85,12 @@ print(f"Avg Latency: {stats['avg_latency_ms']:.2f}ms")
 print(f"FPS: {stats['fps']:.1f}")
 ```
 
-### CLI Configuration
-Edit `src/main.py` to adjust model, confidence, and input source.
-
-Example configuration:
-```text
---source    path or stream URL to process
---weights   path/to/weights.pt (e.g., yolo11n.pt, yolo11m.pt)
---conf      confidence threshold (0.0 - 1.0)
-```
+### Customization
+Edit `src/main.py` to adjust:
+- **Stream URL**: Change `url` variable to point to your stream
+- **Model weights**: Use different YOLO models (yolo11s.pt, yolo11m.pt, etc.)
+- **Confidence threshold**: Adjust `conf` parameter in `engine.py`
+- **Frame skip rate**: Tune `process_every_n_frames`
 
 ## 📁 Project Structure
 
@@ -112,7 +117,41 @@ A standalone `performance.py` module provides **high-resolution performance prof
 
 ---
 
-## 🧪 Development
+## 🧪 Development & Testing
+
+### Running the Full Pipeline
+
+```bash
+python src/main.py
+```
+
+Monitor performance in real-time:
+- **Display overlay**: Latency (ms) and FPS shown on each frame
+- **Metrics export**: Check `performance_metrics.csv` after running for historical analysis
+
+### Testing & Diagnostics
+
+**Stream connectivity test** (no inference):
+```bash
+python test_connection.py
+```
+
+**Performance analysis**:
+```python
+from src.performance import PerformanceMonitor
+from src.engine import MoriVision
+
+ai = MoriVision()
+stats = ai.get_performance_stats()
+print(stats)  # View avg latency, FPS, sample count
+```
+
+### Code Quality
+
+- Add tests under a `tests/` directory and run with `pytest`
+- Use code formatting: `black src/`
+- Use linting: `ruff check src/`
+- Consider `pre-commit` hooks for automated checks
 
 ---
 
