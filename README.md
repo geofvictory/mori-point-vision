@@ -12,6 +12,7 @@ This repository contains a small set of utilities and an example app to run obje
 - **Frame skipping**: Process every Nth frame to reduce CPU load while maintaining smooth playback
 - **Performance monitoring**: Track latency and FPS in real-time with rolling averages
 - **CSV metrics export**: Log inference times and device info to `performance_metrics.csv`
+- **Detection logging**: Log each detected object (class, confidence, timestamp) to `trail_log.csv`
 - Run YOLO detection on camera / file / stream inputs
 - Stream handling via `streamlink` and `ffmpeg` integration
 - Simple logging and engine components under `src/` for easy extension
@@ -85,6 +86,20 @@ print(f"Avg Latency: {stats['avg_latency_ms']:.2f}ms")
 print(f"FPS: {stats['fps']:.1f}")
 ```
 
+### Detection Logging
+Detections are automatically logged to `trail_log.csv` with the following columns:
+- `timestamp`: ISO format datetime when detection occurred
+- `label`: Class name of detected object
+- `confidence`: Detection confidence score (0.00–1.00)
+
+The logger is initialized in `main.py` and automatically logs each detection:
+```python
+from src.logger import MoriLogger
+
+logger = MoriLogger()  # Creates trail_log.csv
+logger.log_detection(class_name, confidence_score)  # Log each detection
+```
+
 ### Customization
 Edit `src/main.py` to adjust:
 - **Stream URL**: Change `url` variable to point to your stream
@@ -99,7 +114,7 @@ src/
   main.py           → App entry point; stream/file processing
   engine.py         → MoriVision class; YOLO inference + metrics
   performance.py    → PerformanceMonitor; latency tracking
-  logger.py         → CSV logging for events and metrics
+  logger.py         → MoriLogger class; CSV logging for detections and performance metrics
 requirements.txt    → Runtime dependencies
 README.md           → This file
 ```
