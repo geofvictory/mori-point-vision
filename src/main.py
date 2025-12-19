@@ -1,6 +1,7 @@
 import cv2
 import streamlink
 from .engine import MoriVision
+from .logger import MoriLogger
 from .performance import PerformanceMonitor
 
 def run():
@@ -8,6 +9,7 @@ def run():
     streams = streamlink.streams(url)
     cap = cv2.VideoCapture(streams['720p'].url)
     ai = MoriVision()
+    logger = MoriLogger()
     perf = PerformanceMonitor()
 
     # Frame skipping configuration
@@ -31,6 +33,9 @@ def run():
             
             for r in results:
                 last_annotated_frame = r.plot()
+                if results:
+                    for box in r.boxes:
+                        logger.log_detection(r.names[int(box.cls[0])], float(box.conf[0]))
         
         # Display the most recent annotated frame (or raw frame if no inference yet)
         display_frame = last_annotated_frame if last_annotated_frame is not None else frame
